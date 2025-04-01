@@ -1,10 +1,13 @@
 // Imports
-// TODO: Import the ec2 client
+const {
+  EC2Client,
+  CreateSecurityGroupCommand
+} = require('aws-sdk/client-ec2')
 const helpers = require('./helpers')
 
 function sendCommand (command) {
-  // TODO: Create new client with region
-  // TODO: Return send command
+  const client = new EC2Client({ region: process.env.AWS_REGION })
+  return client.send(command)
 }
 
 // Declare local variables
@@ -26,7 +29,24 @@ async function execute () {
 
 // Create functions
 async function createSecurityGroup (sgName) {
-  // TODO: Implement sg creation & setting SSH rule
+  const sgParams {
+    Description : sgName,
+    GroupName : sgName
+  }
+  const createCommand = new CreateSecurityGroupCommand(sgParams)
+  const data = await send(createCommand)
+
+  const rulesParams = {
+    GroupId: data.GroupId,
+    IpPermissions: [
+      {
+        IpProtocol: 'tcp',
+        FromPort: 22,
+        ToPort: 22,
+        IpRanges: [{ CidrIp: '0.0.0.0/0'}]
+      }
+    ] 
+  }
 }
 
 async function createKeyPair (keyName) {
